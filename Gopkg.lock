@@ -2,6 +2,12 @@
 
 
 [[projects]]
+  branch = "master"
+  name = "github.com/aemengo/bosh-runc-cpi"
+  packages = ["pb"]
+  revision = "cb16d5ccdde639e066920e6cb8452c5a9c6b9b15"
+
+[[projects]]
   name = "github.com/golang/protobuf"
   packages = [
     "proto",
@@ -12,6 +18,12 @@
   ]
   revision = "aa810b61a9c79d51363740d207bb46cf8e620ed5"
   version = "v1.2.0"
+
+[[projects]]
+  name = "github.com/jessevdk/go-flags"
+  packages = ["."]
+  revision = "c6ca198ec95c841fdb89fc0de7496fed11ab854e"
+  version = "v1.4.0"
 
 [[projects]]
   branch = "master"
@@ -96,6 +108,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "06047f523c061c1697bde08a6bc073853958944e42a4d05f6e84dd92a685af7d"
+  inputs-digest = "b57205ad0bf8fcc378ce79f9324cf7de931b57deadf8ee597df0b570af55fbdc"
   solver-name = "gps-cdcl"
   solver-version = 1
