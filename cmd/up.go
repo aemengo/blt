@@ -15,7 +15,8 @@
 package cmd
 
 import (
-	"fmt"
+	"os/exec"
+	"path/filepath"
 
 	"github.com/spf13/cobra"
 )
@@ -23,15 +24,10 @@ import (
 // upCmd represents the up command
 var upCmd = &cobra.Command{
 	Use:   "up",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "Spin up a local bosh-lit VM with accessible BOSH director",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("up called")
+		err := performUp()
+		expectNoError(err)
 	},
 }
 
@@ -47,4 +43,21 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// upCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+}
+
+func performUp() error {
+	command := exec.Command(
+		"linuxkit", "run", "hyperkit",
+		"-console-file",
+		"-iso", "-uefi",
+		"-cpus=4", "-mem=8192",
+		"-disk", "size=80G",
+		"-networking", "vpnkit",
+		"-publish", "9999:9999/tcp",
+		"-publish", "9998:9998/tcp",
+		"-state", filepath.Join(bltHomeDir, "state", "linuxkit"),
+		filepath.Join(bltHomeDir, "assets", "bosh-lit-efi.iso"),
+	)
+
+	return command.Start()
 }
