@@ -23,13 +23,16 @@ import (
 // exposeCmd represents the expose command
 var exposeCmd = &cobra.Command{
 	Use:   "expose",
-	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+	Short: "Forward a port from the VM to the host",
+	Long: `In order to access container ports from the host, they
+must be explicitly forwarded. Declaring ports is done in
+a similar fashion to the ssh command.
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+    -L [host_address:]port:container_address:containerport
+
+For example:
+$ blt expose -L 10.0.0.5:80:10.0.0.5:80 -L 10.0.0.5:443:10.0.0.5:443
+`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("expose called")
 	},

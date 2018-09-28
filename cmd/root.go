@@ -16,6 +16,7 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/fatih/color"
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"os"
@@ -72,6 +73,6 @@ func expectNoError(err error) {
 		return
 	}
 
-	fmt.Println(err)
+	fmt.Printf(color.RedString("Error") + ": %s.\n", err)
 	os.Exit(1)
 }
