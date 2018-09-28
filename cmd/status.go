@@ -18,6 +18,7 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
+	_ "google.golang.org/grpc"
 )
 
 // statusCmd represents the status command
