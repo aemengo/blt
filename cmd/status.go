@@ -26,7 +26,7 @@ var statusCmd = &cobra.Command{
 	Use:   "status",
 	Short: "Show the status of your local bosh-lit VM",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Printf("%s\n", vm.GetStatus(bltHomeDir))
+		fmt.Println(vm.GetStatus(bltHomeDir))
 	},
 }
 

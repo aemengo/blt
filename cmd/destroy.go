@@ -16,39 +16,47 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/aemengo/blt/vm"
 	"github.com/spf13/cobra"
+	"os"
+	"path/filepath"
 )
 
-// envCmd represents the env command
-var envCmd = &cobra.Command{
-	Use:   "env",
-	Short: "Output environment variables for accessing your BOSH director",
+// destroyCmd represents the destroy command
+var destroyCmd = &cobra.Command{
+	Use:   "destroy",
+	Short: "Remove the saved state of your local bosh-lit VM",
 	Run: func(cmd *cobra.Command, args []string) {
-		performEnv()
+		err := performDestroy()
+		expectNoError(err)
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(envCmd)
+	rootCmd.AddCommand(destroyCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// envCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// destroyCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// envCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// destroyCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
-func performEnv() {
-	fmt.Printf(`export BOSH_ENVIRONMENT="10.0.0.4"
-export BOSH_CLIENT=admin
-export BOSH_CLIENT_SECRET="%[2]s"
-export BOSH_CA_CERT=%[1]s/state/bosh/ca.crt
-export BOSH_GW_HOST="10.0.0.4"
-export BOSH_GW_USER="jumpbox"
-export BOSH_GW_PRIVATE_KEY=%[1]s/state/bosh/gw_id_rsa
-`, bltHomeDir, "mysecret")
+func performDestroy() error {
+	status := vm.GetStatus(bltHomeDir)
+	if status != vm.VMStatusStopped {
+		return fmt.Errorf("your VM must be stopped before you can perform this action, it is currently: %s", status)
+	}
+
+	ok := askForConfirmation("Do you really want to wipe all the data off of your bosh-lit VM?", 3)
+	if !ok {
+		fmt.Println("Aborting...")
+		return nil
+	}
+
+	return os.RemoveAll(filepath.Join(bltHomeDir, "state", "linuxkit"))
 }

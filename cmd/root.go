@@ -15,12 +15,14 @@
 package cmd
 
 import (
+	"bufio"
 	"fmt"
 	"github.com/fatih/color"
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 var (
@@ -75,4 +77,26 @@ func expectNoError(err error) {
 
 	fmt.Printf(color.RedString("Error") + ": %s.\n", err)
 	os.Exit(1)
+}
+
+// confirmationCode adapted from:
+// https://gist.github.com/r0l1/3dcbb0c8f6cfe9c66ab8008f55f8f28b
+func askForConfirmation(s string, attempts int) bool {
+	reader := bufio.NewReader(os.Stdin)
+
+	for ; attempts > 0; attempts-- {
+		fmt.Printf("%s [y/n]: ", s)
+
+		response, _ := reader.ReadString('\n')
+		response = strings.TrimSpace(response)
+		response = strings.ToLower(response)
+
+		if response == "y" || response == "yes" {
+			return true
+		} else if response == "n" || response == "no" {
+			return false
+		}
+	}
+
+	return false
 }

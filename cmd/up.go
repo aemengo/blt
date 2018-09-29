@@ -17,6 +17,7 @@ package cmd
 import (
 	"fmt"
 	"github.com/aemengo/blt/vm"
+	"os"
 	"os/exec"
 	"path/filepath"
 	"time"
@@ -34,6 +35,12 @@ var upCmd = &cobra.Command{
 	},
 }
 
+var (
+	cpu    string
+	memory string
+	disk   string
+)
+
 func init() {
 	rootCmd.AddCommand(upCmd)
 
@@ -46,15 +53,27 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// upCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+
+	upCmd.Flags().StringVarP(&cpu, "cpu", "c", "4", "Number of cores to allocate to VM")
+	upCmd.Flags().StringVarP(&memory, "memory", "m", "4096", "Amount of memory to allocate to VM in megabytes")
+	upCmd.Flags().StringVarP(&disk, "disk", "d", "40", "Amount of disk space to allocate to VM in gigabytes (copy-on-write)")
 }
 
 func performUp() error {
+	status := vm.GetStatus(bltHomeDir)
+	if status != vm.VMStatusStopped {
+		fmt.Println("bosh-lit is already running...")
+		return nil
+	}
+
+	os.RemoveAll(filepath.Join(bltHomeDir, "state", "linuxkit", "hyperkit.pid"))
+
 	command := exec.Command(
 		"linuxkit", "run", "hyperkit",
 		"-console-file",
 		"-iso", "-uefi",
-		"-cpus=4", "-mem=4096",
-		"-disk", "size=80G",
+		"-cpus="+cpu, "-mem="+memory,
+		"-disk", "size="+disk+"G",
 		"-networking", "vpnkit",
 		"-publish", "9999:9999/tcp",
 		"-publish", "9998:9998/tcp",
@@ -71,6 +90,11 @@ func performUp() error {
 	if err != nil {
 		return err
 	}
+
+	// deploy bosh
+	// show output
+	// add steps
+	// do cloud config
 
 	fmt.Println("Success!")
 	return nil
