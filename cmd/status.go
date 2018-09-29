@@ -16,9 +16,9 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/aemengo/blt/vm"
 
 	"github.com/spf13/cobra"
-	_ "google.golang.org/grpc"
 )
 
 // statusCmd represents the status command
@@ -26,7 +26,7 @@ var statusCmd = &cobra.Command{
 	Use:   "status",
 	Short: "Show the status of your local bosh-lit VM",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("status called")
+		fmt.Printf("%s\n", vm.GetStatus(bltHomeDir))
 	},
 }
 

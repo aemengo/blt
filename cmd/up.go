@@ -15,8 +15,11 @@
 package cmd
 
 import (
+	"fmt"
+	"github.com/aemengo/blt/vm"
 	"os/exec"
 	"path/filepath"
+	"time"
 
 	"github.com/spf13/cobra"
 )
@@ -50,7 +53,7 @@ func performUp() error {
 		"linuxkit", "run", "hyperkit",
 		"-console-file",
 		"-iso", "-uefi",
-		"-cpus=4", "-mem=8192",
+		"-cpus=4", "-mem=4096",
 		"-disk", "size=80G",
 		"-networking", "vpnkit",
 		"-publish", "9999:9999/tcp",
@@ -59,5 +62,16 @@ func performUp() error {
 		filepath.Join(bltHomeDir, "assets", "bosh-lit-efi.iso"),
 	)
 
-	return command.Start()
+	err := command.Start()
+	if err != nil {
+		return err
+	}
+
+	err = vm.WaitForStatus(vm.VMStatusRunning, bltHomeDir, time.Minute)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println("Success!")
+	return nil
 }
