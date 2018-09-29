@@ -18,6 +18,8 @@ import (
 	"fmt"
 	"github.com/aemengo/blt/path"
 	"github.com/spf13/cobra"
+	"os/exec"
+	"strings"
 )
 
 // envCmd represents the env command
@@ -25,7 +27,7 @@ var envCmd = &cobra.Command{
 	Use:   "env",
 	Short: "Output environment variables for accessing your BOSH director",
 	Run: func(cmd *cobra.Command, args []string) {
-		performEnv()
+		fmt.Println(fetchEnvironmentVariables())
 	},
 }
 
@@ -43,13 +45,14 @@ func init() {
 	// envCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
-func performEnv() {
-	fmt.Printf(`export BOSH_ENVIRONMENT="10.0.0.4"
+func fetchEnvironmentVariables() string {
+	output, _ := exec.Command("bash", "-c", fmt.Sprintf("bosh int %s --path /admin_password", path.BoshCredsPath(bltHomeDir))).Output()
+
+	return fmt.Sprintf(`export BOSH_ENVIRONMENT="10.0.0.4"
 export BOSH_CLIENT=admin
 export BOSH_CLIENT_SECRET="%s"
 export BOSH_CA_CERT=%s
 export BOSH_GW_HOST="10.0.0.4"
 export BOSH_GW_USER="jumpbox"
-export BOSH_GW_PRIVATE_KEY=%s
-`,"mysecret", path.BoshCACertPath(bltHomeDir), path.BoshGWPrivateKeyPath(bltHomeDir))
+export BOSH_GW_PRIVATE_KEY=%s`, strings.TrimSpace(string(output)), path.BoshCACertPath(bltHomeDir), path.BoshGWPrivateKeyPath(bltHomeDir))
 }

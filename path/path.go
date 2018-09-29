@@ -6,8 +6,12 @@ func LinuxkitStatePath(homedir string) string {
 	return filepath.Join(homedir, "state", "linuxkit")
 }
 
-func BoshStatePath(homedir string) string {
-	return filepath.Join(homedir, "state", "bosh")
+func BoshCredsPath(homedir string) string {
+	return filepath.Join(filepath.Join(homedir, "state", "bosh"), "creds.yml")
+}
+
+func BoshStateJSONPath(homedir string) string {
+	return filepath.Join(filepath.Join(homedir, "state", "bosh"), "state.json")
 }
 
 func Pidpath(homedir string) string {

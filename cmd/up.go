@@ -15,9 +15,11 @@
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/aemengo/blt/path"
 	"github.com/aemengo/blt/vm"
+	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -96,13 +98,18 @@ func performUp() error {
 		return err
 	}
 
+	err = resetBOSHStateJSON()
+	if err != nil {
+		return err
+	}
+
 	// declare deploying director
 	command = exec.Command(
 		"bosh", "create-env", filepath.Join(path.BoshDeploymentDir(bltHomeDir), "bosh.yml"),
 		"-o", filepath.Join(path.BoshDeploymentDir(bltHomeDir), "jumpbox-user.yml"),
 		"-o", filepath.Join(path.BoshOperationsDir(bltHomeDir), "runc-cpi.yml"),
-		"--state", filepath.Join(path.BoshStatePath(bltHomeDir), "state.json"),
-		"--vars-store", filepath.Join(path.BoshStatePath(bltHomeDir), "creds.yml"),
+		"--state", path.BoshStateJSONPath(bltHomeDir),
+		"--vars-store", path.BoshCredsPath(bltHomeDir),
 		"-v", "director_name=director",
 		"-v", "external_cpid_ip=127.0.0.1",
 		"-v", "internal_cpid_ip=192.168.65.3",
@@ -117,9 +124,45 @@ func performUp() error {
 		return err
 	}
 
-	// do cloud config
-	// add getting-started steps
+	commands := []string{
+		fmt.Sprintf("bosh int %s --path /director_ssl/ca > %s", path.BoshCredsPath(bltHomeDir), path.BoshCACertPath(bltHomeDir)),
+		fmt.Sprintf("bosh int %s --path /jumpbox_ssh/private_key > %s", path.BoshCredsPath(bltHomeDir), path.BoshGWPrivateKeyPath(bltHomeDir)),
+		fmt.Sprintf("chmod 0600 %s", path.BoshGWPrivateKeyPath(bltHomeDir)),
+	}
 
-	fmt.Println("Success!")
+	for _, command := range commands {
+		output, err := exec.Command("bash", "-c", command).CombinedOutput()
+		if err != nil {
+			return fmt.Errorf("failed to execute '%s': %s: %s", command, err, output)
+		}
+	}
+
+	err = exec.Command("bash", "-c", `eval "%s"; bosh cloud-config`).Run()
+	if err != nil {
+		cmd := fmt.Sprintf(`eval "%s"; bosh -n update-cloud-config %s`, fetchEnvironmentVariables(), filepath.Join(path.BoshOperationsDir(bltHomeDir), "cloud-config.yml"))
+		output, err := exec.Command("bash", "-c", cmd).CombinedOutput()
+		if err != nil {
+			return fmt.Errorf("failed to execute '%s': %s: %s", cmd, err, output)
+		}
+	}
+
+	fmt.Println("We doing it!!!!")
+
+	// add getting-started steps
 	return nil
+}
+
+func resetBOSHStateJSON() error {
+	mapping := map[string]interface{}{}
+
+	data, err := ioutil.ReadFile(path.BoshStateJSONPath(bltHomeDir))
+	if err != nil {
+		return fmt.Errorf("failed to read bosh state file: %s", err)
+	}
+
+	json.Unmarshal(data, &mapping)
+	delete(mapping, "current_manifest_sha")
+	newContents, _ := json.Marshal(mapping)
+
+	return ioutil.WriteFile(path.BoshStateJSONPath(bltHomeDir), newContents, 0600)
 }
