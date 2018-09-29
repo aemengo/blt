@@ -15,6 +15,7 @@
 package cmd
 
 import (
+	"fmt"
 	"github.com/aemengo/blt/vm"
 	"github.com/spf13/cobra"
 )
@@ -31,9 +32,12 @@ a similar fashion to the ssh command.
 
 For example:
 $ blt expose -L 10.0.0.5:80:10.0.0.5:80 -L 10.0.0.5:443:10.0.0.5:443
+
+Note: It is still up to you to configure how your machine routes itself to the
+exposed port.
 `,
 	Run: func(cmd *cobra.Command, args []string) {
-		err := vm.Foward(bltHomeDir, addresses)
+		err := performExpose()
 		expectNoError(err)
 	},
 }
@@ -55,4 +59,13 @@ func init() {
 
 	exposeCmd.Flags().StringSliceVarP(&addresses, "forward", "L", []string{}, "List of addresses to forward from VM to host (required)")
 	exposeCmd.MarkFlagRequired("forward")
+}
+
+func performExpose() error {
+	status := vm.GetStatus(bltHomeDir)
+	if status != vm.VMStatusRunning {
+		return fmt.Errorf("your VM must be running before you can perform this action, it is currently: %s", boldWhite.Sprint(status))
+	}
+
+	return vm.Foward(addresses)
 }

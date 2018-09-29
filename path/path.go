@@ -6,12 +6,24 @@ func LinuxkitStatePath(homedir string) string {
 	return filepath.Join(homedir, "state", "linuxkit")
 }
 
+func BoshStatePath(homedir string) string {
+	return filepath.Join(homedir, "state", "bosh")
+}
+
 func BoshCredsPath(homedir string) string {
-	return filepath.Join(filepath.Join(homedir, "state", "bosh"), "creds.yml")
+	return filepath.Join(BoshStatePath(homedir), "creds.yml")
 }
 
 func BoshStateJSONPath(homedir string) string {
-	return filepath.Join(filepath.Join(homedir, "state", "bosh"), "state.json")
+	return filepath.Join(BoshStatePath(homedir), "state.json")
+}
+
+func BoshCACertPath(homedir string) string {
+	return filepath.Join(BoshStatePath(homedir), "ca.crt")
+}
+
+func BoshGWPrivateKeyPath(homedir string) string {
+	return filepath.Join(BoshStatePath(homedir), "gw_id_rsa")
 }
 
 func Pidpath(homedir string) string {
@@ -20,14 +32,6 @@ func Pidpath(homedir string) string {
 
 func EFIisoPath(homedir string) string {
 	return filepath.Join(homedir, "assets", "bosh-lit-efi.iso")
-}
-
-func BoshCACertPath(homedir string) string {
-	return filepath.Join(homedir, "state", "bosh", "ca.crt")
-}
-
-func BoshGWPrivateKeyPath(homedir string) string {
-	return filepath.Join(homedir, "state", "bosh", "gw_id_rsa")
 }
 
 func BoshDeploymentDir(homedir string) string {

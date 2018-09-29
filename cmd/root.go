@@ -27,17 +27,22 @@ import (
 
 var (
 	bltHomeDir string
+	boldWhite  = color.New(color.FgWhite, color.Bold)
+	boldGreen  = color.New(color.FgGreen, color.Bold)
+	boldRed    = color.New(color.FgRed, color.Bold)
 )
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "blt",
 	Short: "CLI for managing BOSH Lit VMs",
-	Long: `blt (short for BOSH Lit) is a CLI library for managing a BOSH Lit VM.
+	Long: fmt.Sprintf(`blt (short for BOSH Lit) is a CLI for managing a BOSH Lit VM.
 This tool provides an easy way to get up and running with a local, low-footprint
-BOSH environment which supports deployments.
+BOSH environment that supports deployments.
 
-Website: https://github.com/aemengo/blt`,
+%s
+
+Website: https://github.com/aemengo/blt`, gettingStartedInstructions()),
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	//	Run: func(cmd *cobra.Command, args []string) { },
@@ -79,7 +84,7 @@ func expectNoError(err error) {
 		return
 	}
 
-	fmt.Printf(color.RedString("Error") + ": %s.\n", err)
+	fmt.Printf(boldRed.Sprint("Error:")+" %s.\n", err)
 	os.Exit(1)
 }
 
@@ -105,12 +110,45 @@ func askForConfirmation(s string, attempts int) bool {
 	return false
 }
 
-func gettingStartedText() string {
+func gettingStartedInstructions() string {
 	return fmt.Sprintf(`Getting Started
 ===============
 
-Your bosh director
+Your BOSH director will be accessible at "10.0.0.4". To make sure your requests
+target appropriately you may need to add the IP to your network interface, like so:
 
+$ %s
 
-`)
+Seeing your BOSH target credentials is as simple as using the "env" command. Thus in your
+terminal, you can target like so:
+
+$ %s
+
+Networking
+==========
+
+BOSH Lit is provisioned with the subnet of "10.0.0.1/16". It also has a minimal cloud-config
+pre-configured with the appropriate attributes. Should you wish to deploy Cloud Foundry
+on your local instance, you can use this cloud-config here:
+https://github.com/aemengo/bosh-runc-cpi-release/blob/develop/operations/cf/cloud-config.yml
+
+In order to access ports for new deployments from the host, you must use the "blt expose" command.
+Port forwarding is done à la ssh. For more information, you can invoke the following:
+
+$ %s
+
+State
+=====
+
+The "state.json" and "creds.yml" of your BOSH director is by default held at: "$HOME/.blt/state/bosh". For adequate state
+preservation between VM "ups" and "downs", direct access is NOT recommended.
+
+To override where state files are kept, you may use the following environment variable:
+
+$ %s`,
+		boldWhite.Sprint("sudo ifconfig lo0 alias 10.0.0.4"),
+		boldWhite.Sprintf(`eval "$(blt env)"`),
+		boldWhite.Sprintf("blt expose -h"),
+		boldWhite.Sprintf("export BLT_HOME=/path/to/dir"),
+	)
 }

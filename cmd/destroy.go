@@ -49,7 +49,7 @@ func init() {
 func performDestroy() error {
 	status := vm.GetStatus(bltHomeDir)
 	if status != vm.VMStatusStopped {
-		return fmt.Errorf("your VM must be stopped before you can perform this action, it is currently: %s", status)
+		return fmt.Errorf("your VM must be stopped before you can perform this action, it is currently: %s", boldWhite.Sprint(status))
 	}
 
 	ok := askForConfirmation("Do you really want to wipe all the data off of your BOSH Lit VM?", 3)

@@ -146,9 +146,7 @@ func performUp() error {
 		}
 	}
 
-	fmt.Println("We doing it!!!!")
-
-	// add getting-started steps
+	fmt.Println("\n", gettingStartedInstructions(), "\n")
 	return nil
 }
 

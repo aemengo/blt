@@ -15,9 +15,7 @@
 package cmd
 
 import (
-	"fmt"
 	"github.com/aemengo/blt/vm"
-
 	"github.com/spf13/cobra"
 )
 
@@ -26,7 +24,15 @@ var statusCmd = &cobra.Command{
 	Use:   "status",
 	Short: "Show the status of your local BOSH Lit VM",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println(vm.GetStatus(bltHomeDir))
+		status := vm.GetStatus(bltHomeDir)
+		switch status {
+		case vm.VMStatusRunning:
+			boldGreen.Println(status)
+		case vm.VMStatusStopped:
+			boldWhite.Println(status)
+		default:
+			boldRed.Println(status)
+		}
 	},
 }
 
