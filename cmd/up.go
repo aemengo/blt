@@ -16,10 +16,10 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/aemengo/blt/path"
 	"github.com/aemengo/blt/vm"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -66,7 +66,7 @@ func performUp() error {
 		return nil
 	}
 
-	os.RemoveAll(filepath.Join(bltHomeDir, "state", "linuxkit", "hyperkit.pid"))
+	os.RemoveAll(path.Pidpath(bltHomeDir))
 
 	command := exec.Command(
 		"linuxkit", "run", "hyperkit",
@@ -77,8 +77,8 @@ func performUp() error {
 		"-networking", "vpnkit",
 		"-publish", "9999:9999/tcp",
 		"-publish", "9998:9998/tcp",
-		"-state", filepath.Join(bltHomeDir, "state", "linuxkit"),
-		filepath.Join(bltHomeDir, "assets", "bosh-lit-efi.iso"),
+		"-state", path.LinuxkitStatePath(bltHomeDir),
+		path.EFIisoPath(bltHomeDir),
 	)
 
 	err := command.Start()

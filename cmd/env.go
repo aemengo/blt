@@ -16,6 +16,7 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/aemengo/blt/path"
 	"github.com/spf13/cobra"
 )
 
@@ -45,10 +46,10 @@ func init() {
 func performEnv() {
 	fmt.Printf(`export BOSH_ENVIRONMENT="10.0.0.4"
 export BOSH_CLIENT=admin
-export BOSH_CLIENT_SECRET="%[2]s"
-export BOSH_CA_CERT=%[1]s/state/bosh/ca.crt
+export BOSH_CLIENT_SECRET="%s"
+export BOSH_CA_CERT=%s
 export BOSH_GW_HOST="10.0.0.4"
 export BOSH_GW_USER="jumpbox"
-export BOSH_GW_PRIVATE_KEY=%[1]s/state/bosh/gw_id_rsa
-`, bltHomeDir, "mysecret")
+export BOSH_GW_PRIVATE_KEY=%s
+`,"mysecret", path.BoshCACertPath(bltHomeDir), path.BoshGWPrivateKeyPath(bltHomeDir))
 }

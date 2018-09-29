@@ -4,11 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/aemengo/blt/path"
 	c1 "github.com/aemengo/bosh-runc-cpi/client"
 	c2 "github.com/aemengo/vpnkit-manager/client"
 	"io/ioutil"
 	"os"
-	"path/filepath"
 	"strconv"
 	"syscall"
 	"time"
@@ -98,9 +98,9 @@ func Stop(homedir string) {
 }
 
 func fetchVMProcess(homedir string) (*os.Process, bool) {
-	pidFile := filepath.Join(homedir, "state", "linuxkit", "hyperkit.pid")
+	pidFile := path.Pidpath(homedir)
 
-	_, err := os.Stat(filepath.Join(homedir, "state", "linuxkit", "hyperkit.pid"))
+	_, err := os.Stat(pidFile)
 	if os.IsNotExist(err) {
 		return nil, false
 	}

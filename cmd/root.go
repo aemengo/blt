@@ -67,6 +67,10 @@ func initConfig() {
 	home, err := homedir.Dir()
 	expectNoError(err)
 
+	if envHome := os.Getenv("BLT_HOME"); envHome != "" {
+		home = envHome
+	}
+
 	bltHomeDir = filepath.Join(home, ".blt")
 }
 

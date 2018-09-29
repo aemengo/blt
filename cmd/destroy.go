@@ -16,10 +16,10 @@ package cmd
 
 import (
 	"fmt"
+	"github.com/aemengo/blt/path"
 	"github.com/aemengo/blt/vm"
 	"github.com/spf13/cobra"
 	"os"
-	"path/filepath"
 )
 
 // destroyCmd represents the destroy command
@@ -58,5 +58,5 @@ func performDestroy() error {
 		return nil
 	}
 
-	return os.RemoveAll(filepath.Join(bltHomeDir, "state", "linuxkit"))
+	return os.RemoveAll(path.LinuxkitStatePath(bltHomeDir))
 }
