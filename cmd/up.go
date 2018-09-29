@@ -31,7 +31,7 @@ import (
 // upCmd represents the up command
 var upCmd = &cobra.Command{
 	Use:   "up",
-	Short: "Spin up a local bosh-lit VM with accessible BOSH director",
+	Short: "Spin up a local BOSH Lit VM with accessible BOSH director",
 	Run: func(cmd *cobra.Command, args []string) {
 		err := performUp()
 		expectNoError(err)
@@ -65,7 +65,7 @@ func init() {
 func performUp() error {
 	status := vm.GetStatus(bltHomeDir)
 	if status != vm.VMStatusStopped {
-		fmt.Println("bosh-lit is already running...")
+		fmt.Println("BOSH Lit is already running...")
 		return nil
 	}
 

@@ -22,7 +22,7 @@ import (
 // downCmd represents the down command
 var downCmd = &cobra.Command{
 	Use:   "down",
-	Short: "Spin down your local bosh-lit VM",
+	Short: "Spin down your local BOSH Lit VM",
 	Run: func(cmd *cobra.Command, args []string) {
 		vm.Stop(bltHomeDir)
 	},

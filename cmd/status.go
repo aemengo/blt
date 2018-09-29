@@ -24,7 +24,7 @@ import (
 // statusCmd represents the status command
 var statusCmd = &cobra.Command{
 	Use:   "status",
-	Short: "Show the status of your local bosh-lit VM",
+	Short: "Show the status of your local BOSH Lit VM",
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println(vm.GetStatus(bltHomeDir))
 	},

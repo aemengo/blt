@@ -25,7 +25,7 @@ import (
 // destroyCmd represents the destroy command
 var destroyCmd = &cobra.Command{
 	Use:   "destroy",
-	Short: "Remove the saved state of your local bosh-lit VM",
+	Short: "Remove the saved state of your local BOSH Lit VM",
 	Run: func(cmd *cobra.Command, args []string) {
 		err := performDestroy()
 		expectNoError(err)
@@ -52,7 +52,7 @@ func performDestroy() error {
 		return fmt.Errorf("your VM must be stopped before you can perform this action, it is currently: %s", status)
 	}
 
-	ok := askForConfirmation("Do you really want to wipe all the data off of your bosh-lit VM?", 3)
+	ok := askForConfirmation("Do you really want to wipe all the data off of your BOSH Lit VM?", 3)
 	if !ok {
 		fmt.Println("Aborting...")
 		return nil

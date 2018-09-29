@@ -32,8 +32,8 @@ var (
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "blt",
-	Short: "CLI for managing bosh-lit VMs",
-	Long: `blt (short for bosh-lit) is a CLI library for managing a bosh-lit VM.
+	Short: "CLI for managing BOSH Lit VMs",
+	Long: `blt (short for BOSH Lit) is a CLI library for managing a BOSH Lit VM.
 This tool provides an easy way to get up and running with a local, low-footprint
 BOSH environment which supports deployments.
 
@@ -103,4 +103,14 @@ func askForConfirmation(s string, attempts int) bool {
 	}
 
 	return false
+}
+
+func gettingStartedText() string {
+	return fmt.Sprintf(`Getting Started
+===============
+
+Your bosh director
+
+
+`)
 }
