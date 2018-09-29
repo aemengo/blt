@@ -5,7 +5,9 @@
 #
 # required = ["github.com/user/thing/cmd/thing"]
 # ignored = ["github.com/user/project/pkgX", "bitbucket.org/user/project/pkgA/pkgY"]
-#
+
+ignored = ["github.com/aemengo/bosh-runc-cpi/client", "github.com/aemengo/vpnkit-manager/client"]
+
 # [[constraint]]
 #   name = "github.com/user/project"
 #   version = "1.0.0"
@@ -24,14 +26,9 @@
 #   go-tests = true
 #   unused-packages = true
 
-
 [prune]
   go-tests = true
   unused-packages = true
-
-[[constraint]]
-  name = "google.golang.org/grpc"
-  version = "1.14.0"
 
 [[constraint]]
   name = "github.com/fatih/color"
