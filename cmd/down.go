@@ -15,8 +15,7 @@
 package cmd
 
 import (
-	"fmt"
-
+	"github.com/aemengo/blt/vm"
 	"github.com/spf13/cobra"
 )
 
@@ -25,7 +24,7 @@ var downCmd = &cobra.Command{
 	Use:   "down",
 	Short: "Spin down your local bosh-lit VM",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("down called")
+		vm.Stop(bltHomeDir)
 	},
 }
 

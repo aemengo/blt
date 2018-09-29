@@ -31,12 +31,12 @@ func (s Status) String() string {
 		return "Unresponsive"
 	}
 
-	return ""
+	return "Unknown"
 }
 
-func GetStatus(homeDir string) Status {
-	pidFile := filepath.Join(homeDir, "state", "linuxkit", "hyperkit.pid")
-	if !pidExists(pidFile) {
+func GetStatus(homedir string) Status {
+	_, ok := fetchVMProcess(homedir)
+	if !ok {
 		return VMStatusStopped
 	}
 
@@ -69,24 +69,54 @@ func WaitForStatus(desiredStatus Status, homedir string, timeout time.Duration) 
 	}
 }
 
-func pidExists(pidFile string) bool {
-	_, err := os.Stat(pidFile)
+func Stop(homedir string) {
+	process, ok := fetchVMProcess(homedir)
+	if !ok {
+		return
+	}
+
+	process.Signal(os.Interrupt)
+
+	err := WaitForStatus(VMStatusStopped, homedir, 20*time.Second)
+	if err == nil {
+		return
+	}
+
+	fmt.Println("VM did not terminate gracefully after 20 seconds. Force quitting...")
+	process.Signal(os.Kill)
+}
+
+func fetchVMProcess(homedir string) (*os.Process, bool) {
+	pidFile := filepath.Join(homedir, "state", "linuxkit", "hyperkit.pid")
+
+	_, err := os.Stat(filepath.Join(homedir, "state", "linuxkit", "hyperkit.pid"))
 	if os.IsNotExist(err) {
-		return false
+		return nil, false
 	}
 
 	if err != nil {
-		return false
+		return nil, false
 	}
 
-	data, _ := ioutil.ReadFile(pidFile)
-	pid, _ := strconv.Atoi(string(data))
+	data, err := ioutil.ReadFile(pidFile)
+	if err != nil {
+		return nil, false
+	}
+
+	pid, err := strconv.Atoi(string(data))
+	if err != nil {
+		return nil, false
+	}
 
 	process, err := os.FindProcess(pid)
 	if err != nil {
-		return false
+		return nil, false
 	}
 
 	err = process.Signal(syscall.Signal(0))
-	return err == nil
+	if err != nil {
+		return nil, false
+	}
+
+	return process, true
 }
