@@ -20,6 +20,7 @@ import (
 	"github.com/aemengo/blt/vm"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -68,6 +69,10 @@ func performUp() error {
 
 	os.RemoveAll(path.Pidpath(bltHomeDir))
 
+	// validate dependencies
+	// fetch assets
+
+	// declare launching vm
 	command := exec.Command(
 		"linuxkit", "run", "hyperkit",
 		"-console-file",
@@ -91,10 +96,29 @@ func performUp() error {
 		return err
 	}
 
-	// deploy bosh
-	// show output
-	// add steps
+	// declare deploying director
+	command = exec.Command(
+		"bosh", "create-env", filepath.Join(path.BoshDeploymentDir(bltHomeDir), "bosh.yml"),
+		"-o", filepath.Join(path.BoshDeploymentDir(bltHomeDir), "jumpbox-user.yml"),
+		"-o", filepath.Join(path.BoshOperationsDir(bltHomeDir), "runc-cpi.yml"),
+		"--state", filepath.Join(path.BoshStatePath(bltHomeDir), "state.json"),
+		"--vars-store", filepath.Join(path.BoshStatePath(bltHomeDir), "creds.yml"),
+		"-v", "director_name=director",
+		"-v", "external_cpid_ip=127.0.0.1",
+		"-v", "internal_cpid_ip=192.168.65.3",
+		"-v", "internal_ip=10.0.0.4",
+		"-v", "internal_gw=10.0.0.1",
+		"-v", "internal_cidr=10.0.0.0/16")
+	command.Stdout = os.Stdout
+	command.Stderr = os.Stderr
+
+	err = command.Run()
+	if err != nil {
+		return err
+	}
+
 	// do cloud config
+	// add getting-started steps
 
 	fmt.Println("Success!")
 	return nil
