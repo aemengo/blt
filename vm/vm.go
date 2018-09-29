@@ -2,6 +2,7 @@ package vm
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	c1 "github.com/aemengo/bosh-runc-cpi/client"
 	c2 "github.com/aemengo/vpnkit-manager/client"
@@ -67,6 +68,16 @@ func WaitForStatus(desiredStatus Status, homedir string, timeout time.Duration) 
 			}
 		}
 	}
+}
+
+func Foward(homedir string, addresses []string) error {
+	status := GetStatus(homedir)
+	if status != VMStatusRunning {
+		return errors.New("vm must be running before attempting to forward ports")
+	}
+
+	ctx := context.Background()
+	return c2.Forward(ctx, "127.0.0.1:9998", addresses)
 }
 
 func Stop(homedir string) {

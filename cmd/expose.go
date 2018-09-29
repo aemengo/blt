@@ -15,8 +15,7 @@
 package cmd
 
 import (
-	"fmt"
-
+	"github.com/aemengo/blt/vm"
 	"github.com/spf13/cobra"
 )
 
@@ -28,15 +27,18 @@ var exposeCmd = &cobra.Command{
 must be explicitly forwarded. Declaring ports is done in
 a similar fashion to the ssh command.
 
-    -L [host_address:]port:container_address:containerport
+    -L host_address:port:container_address:container_port
 
 For example:
 $ blt expose -L 10.0.0.5:80:10.0.0.5:80 -L 10.0.0.5:443:10.0.0.5:443
 `,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("expose called")
+		err := vm.Foward(bltHomeDir, addresses)
+		expectNoError(err)
 	},
 }
+
+var addresses []string
 
 func init() {
 	rootCmd.AddCommand(exposeCmd)
@@ -50,4 +52,7 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// exposeCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+
+	exposeCmd.Flags().StringSliceVarP(&addresses, "forward", "L", []string{}, "List of addresses to forward from VM to host (required)")
+	exposeCmd.MarkFlagRequired("forward")
 }
