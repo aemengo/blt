@@ -86,7 +86,7 @@ func expectNoError(err error) {
 		return
 	}
 
-	fmt.Printf(boldRed.Sprint("Error:")+" %s.\n", err)
+	fmt.Printf(boldRed.Sprint("Error")+"\n%s.\n", err)
 	os.Exit(1)
 }
 

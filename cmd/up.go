@@ -21,6 +21,7 @@ import (
 	"github.com/aemengo/blt/path"
 	"github.com/aemengo/blt/vm"
 	"io/ioutil"
+	"net"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -77,8 +78,13 @@ func performUp() error {
 	}
 	// fetch assets
 
-	boldWhite.Print("Validating Dependencies...   ")
+	boldWhite.Print("Validating Prerequisties...   ")
 	err := checkForDependencies()
+	if err != nil {
+		return err
+	}
+
+	err = checkNetworkAddrs()
 	if err != nil {
 		return err
 	}
@@ -234,23 +240,37 @@ func handleUsageMessage() {
 	}
 }
 
+func checkNetworkAddrs() error {
+	addrs, err := net.InterfaceAddrs()
+	if err != nil {
+		return fmt.Errorf("failed to inspect network interfaces: %s", err)
+	}
+
+	for _, addr := range addrs {
+		elements := strings.Split(addr.String(), "/")
+		if elements[0] == "10.0.0.4" {
+			return nil
+		}
+	}
+
+	return fmt.Errorf(`Your BOSH director will be accessible at "10.0.0.4". To make sure your requests
+target appropriately you must add the IP to your network interfaces, like so:
+
+$ %s `, boldWhite.Sprint("sudo ifconfig lo0 alias 10.0.0.4"))
+}
+
 type Dependency struct {
 	Name           string
 	CheckCommand   string
-	InstallCommand string
 	Site           string
 }
 
 func (d *Dependency) Usage() string {
-	if d.InstallCommand == "" && d.Site == "" {
-		return strings.Title(d.Name)
+	if d.Site == "" {
+		return boldWhite.Sprintf(strings.Title(d.Name))
 	}
 
-	if d.InstallCommand == "" {
-		return fmt.Sprintf("%q %s", strings.Title(d.Name), d.Site)
-	}
-
-	return fmt.Sprintf("%q %s (%s)", strings.Title(d.Name), d.InstallCommand, d.Site)
+	return fmt.Sprintf("%s %s", boldWhite.Sprintf(strings.Title(d.Name)), d.Site)
 }
 
 func checkForDependencies() error {
@@ -267,14 +287,13 @@ func checkForDependencies() error {
 			Site:         "https://bosh.io/docs/cli-v2",
 		},
 		{
-			Name:         "tar",
-			CheckCommand: "tar --help",
-		},
-		{
 			Name:         "linuxkit",
 			CheckCommand: "linuxkit version",
-			InstallCommand: "brew install --HEAD linuxkit/linuxkit/linuxkit",
 			Site: "https://github.com/linuxkit/linuxkit",
+		},
+		{
+			Name:         "tar",
+			CheckCommand: "tar --help",
 		},
 	}
 
@@ -288,7 +307,7 @@ func checkForDependencies() error {
 		return nil
 	}
 
-	var messages = []string{"", "The following dependencies must be installed:"}
+	var messages = []string{"The following dependencies must be installed:"}
 	for i, d := range missingDeps {
 		messages = append(messages, fmt.Sprintf("%d: %s", i, d.Usage()))
 	}
