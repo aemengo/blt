@@ -32,6 +32,8 @@ var destroyCmd = &cobra.Command{
 	},
 }
 
+var force bool
+
 func init() {
 	rootCmd.AddCommand(destroyCmd)
 
@@ -44,6 +46,8 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	// destroyCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+
+	destroyCmd.Flags().BoolVarP(&force, "force", "f", false, "Force deletion without confirmation")
 }
 
 func performDestroy() error {
@@ -52,11 +56,15 @@ func performDestroy() error {
 		return fmt.Errorf("your VM must be stopped before you can perform this action, it is currently: %s", boldWhite.Sprint(status))
 	}
 
-	ok := askForConfirmation("Do you really want to wipe all the data off of your BOSH Lit VM?", 3)
-	if !ok {
+	if !force || !askForConfirmation("Do you really want to wipe all the data off of your BOSH Lit VM?", 3) {
 		fmt.Println("Aborting...")
 		return nil
 	}
 
-	return os.RemoveAll(path.LinuxkitStatePath(bltHomeDir))
+	err := os.RemoveAll(path.StateDir(bltHomeDir))
+	if err != nil {
+		return err
+	}
+
+	return os.MkdirAll(path.StateDir(bltHomeDir), os.ModePerm)
 }
