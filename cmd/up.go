@@ -77,8 +77,6 @@ func performUp() error {
 	}
 	// fetch assets
 
-
-
 	boldWhite.Print("Validating Dependencies...   ")
 	err := checkForDependencies()
 	if err != nil {

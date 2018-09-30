@@ -96,7 +96,7 @@ func askForConfirmation(s string, attempts int) bool {
 	reader := bufio.NewReader(os.Stdin)
 
 	for ; attempts > 0; attempts-- {
-		fmt.Printf("%s [y/n]: ", s)
+		fmt.Printf("%s %s: ", s, boldWhite.Sprintf(`[y/n]`))
 
 		response, _ := reader.ReadString('\n')
 		response = strings.TrimSpace(response)

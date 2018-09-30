@@ -56,7 +56,7 @@ func performDestroy() error {
 		return fmt.Errorf("your VM must be stopped before you can perform this action, it is currently: %s", boldWhite.Sprint(status))
 	}
 
-	if !force || !askForConfirmation("Do you really want to wipe all the data off of your BOSH Lit VM?", 3) {
+	if force || !askForConfirmation("Do you really want to wipe all the data off of your BOSH Lit VM?", 3) {
 		fmt.Println("Aborting...")
 		return nil
 	}

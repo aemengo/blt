@@ -69,7 +69,7 @@ func WaitForStatus(desiredStatus Status, homedir string, timeout time.Duration) 
 	}
 }
 
-func Foward(addresses []string) error {
+func Forward(addresses []string) error {
 	ctx := context.Background()
 	return c2.Forward(ctx, "127.0.0.1:9998", addresses)
 }

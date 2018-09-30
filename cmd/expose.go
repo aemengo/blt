@@ -67,5 +67,5 @@ func performExpose() error {
 		return fmt.Errorf("your VM must be running before you can perform this action, it is currently: %s", boldWhite.Sprint(status))
 	}
 
-	return vm.Foward(addresses)
+	return vm.Forward(addresses)
 }
