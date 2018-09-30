@@ -16,6 +16,7 @@ package cmd
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/aemengo/blt/path"
 	"github.com/aemengo/blt/vm"
@@ -23,6 +24,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/spf13/cobra"
@@ -73,14 +75,23 @@ func performUp() error {
 		fmt.Println("BOSH Lit is already running...")
 		return nil
 	}
+	// fetch assets
 
-	os.RemoveAll(path.Pidpath(bltHomeDir))
 
-	// validate dependencies
+
+	boldWhite.Print("Validating Dependencies...   ")
+	err := checkForDependencies()
+	if err != nil {
+		return err
+	}
+	boldGreen.Println("Success")
 
 	startTime := time.Now()
+	err = os.RemoveAll(path.Pidpath(bltHomeDir))
+	if err != nil {
+		return err
+	}
 
-	// fetch assets
 	boldWhite.Print("Starting VM")
 	go showIndeterminateProgressAnimation()
 	command := exec.Command(
@@ -95,7 +106,7 @@ func performUp() error {
 		"-state", path.LinuxkitStatePath(bltHomeDir),
 		path.EFIisoPath(bltHomeDir))
 
-	err := command.Start()
+	err = command.Start()
 	if err != nil {
 		return err
 	}
@@ -186,7 +197,7 @@ func resetBOSHStateJSON() error {
 
 func showIndeterminateProgressAnimation() {
 	var (
-		toggle bool
+		toggle     bool
 		clearChars = "\b\b\b\b\b\b"
 	)
 
@@ -196,7 +207,7 @@ func showIndeterminateProgressAnimation() {
 		select {
 		case <-doneChan:
 			return
-		case <-time.NewTicker(500*time.Millisecond).C:
+		case <-time.NewTicker(500 * time.Millisecond).C:
 			if toggle {
 				boldWhite.Print(clearChars, "...   ")
 			} else {
@@ -208,6 +219,67 @@ func showIndeterminateProgressAnimation() {
 	}
 }
 
-func stopIndeterminateProgressAnimation()  {
+func stopIndeterminateProgressAnimation() {
 	doneChan <- true
+}
+
+type Dependency struct {
+	Name           string
+	CheckCommand   string
+	InstallCommand string
+	Site           string
+}
+
+func (d *Dependency) Usage() string {
+	if d.InstallCommand == "" && d.Site == "" {
+		return strings.Title(d.Name)
+	}
+
+	if d.InstallCommand == "" {
+		return fmt.Sprintf("%q %s", strings.Title(d.Name), d.Site)
+	}
+
+	return fmt.Sprintf("%q %s (%s)", strings.Title(d.Name), d.InstallCommand, d.Site)
+}
+
+func checkForDependencies() error {
+	var missingDeps []Dependency
+	var allDeps = []Dependency{
+		{
+			Name:         "docker",
+			CheckCommand: "docker -v",
+			Site:         "https://store.docker.com/editions/community/docker-ce-desktop-mac",
+		},
+		{
+			Name:         "bosh",
+			CheckCommand: "bosh -v",
+			Site:         "https://bosh.io/docs/cli-v2",
+		},
+		{
+			Name:         "tar",
+			CheckCommand: "tar --help",
+		},
+		{
+			Name:         "linuxkit",
+			CheckCommand: "linuxkit version",
+			InstallCommand: "brew install --HEAD linuxkit/linuxkit/linuxkit",
+			Site: "https://github.com/linuxkit/linuxkit",
+		},
+	}
+
+	for _, d := range allDeps {
+		if err := exec.Command("/bin/sh", "-c", d.CheckCommand).Run(); err != nil {
+			missingDeps = append(missingDeps, d)
+		}
+	}
+
+	if len(missingDeps) == 0 {
+		return nil
+	}
+
+	var messages = []string{"", "The following dependencies must be installed:"}
+	for i, d := range missingDeps {
+		messages = append(messages, fmt.Sprintf("%d: %s", i, d.Usage()))
+	}
+	return errors.New(strings.Join(messages, "\n"))
 }
