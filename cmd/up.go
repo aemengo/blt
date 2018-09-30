@@ -151,6 +151,11 @@ func performUp() error {
 }
 
 func resetBOSHStateJSON() error {
+	_, err := os.Stat(path.BoshStateJSONPath(bltHomeDir))
+	if os.IsNotExist(err) {
+		return nil
+	}
+
 	mapping := map[string]interface{}{}
 
 	data, err := ioutil.ReadFile(path.BoshStateJSONPath(bltHomeDir))
