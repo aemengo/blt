@@ -17,7 +17,9 @@ package cmd
 import (
 	"fmt"
 	"github.com/aemengo/blt/vm"
+	"github.com/ryanuber/columnize"
 	"github.com/spf13/cobra"
+	"strings"
 )
 
 // exposeCmd represents the expose command
@@ -32,6 +34,11 @@ a similar fashion to the ssh command.
 
 For example:
 $ blt expose -L 10.0.0.5:80:10.0.0.5:80 -L 10.0.0.5:443:10.0.0.5:443
+
+To list ports that are already exposed, simply invoke the command without
+any arguments:
+
+$ blt expose
 
 %s It is still up to you to configure how your machine routes itself to the
 exposed port.
@@ -57,8 +64,7 @@ func init() {
 	// is called directly, e.g.:
 	// exposeCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 
-	exposeCmd.Flags().StringSliceVarP(&addresses, "forward", "L", []string{}, "List of addresses to forward from VM to host (required)")
-	exposeCmd.MarkFlagRequired("forward")
+	exposeCmd.Flags().StringSliceVarP(&addresses, "forward", "L", []string{}, "List of addresses to forward from VM to host")
 }
 
 func performExpose() error {
@@ -67,5 +73,28 @@ func performExpose() error {
 		return fmt.Errorf("your VM must be running before you can perform this action, it is currently: %s", boldWhite.Sprint(status))
 	}
 
+	if len(addresses) == 0 {
+		addresses, err := vm.ListForwarded()
+		if err != nil {
+			return err
+		}
+
+		presentAddresses(addresses)
+		return nil
+	}
+
 	return vm.Forward(addresses)
+}
+
+func presentAddresses(addresses []string) {
+	fmtAddrs := append([]string{
+		"Host IP:Host Port:Container IP:Container Port",
+	}, addresses...)
+
+	config := columnize.DefaultConfig()
+	config.Delim = ":"
+	result := strings.Split(columnize.Format(fmtAddrs, config), "\n")
+
+	boldWhite.Println(result[0])
+	fmt.Println(strings.Join(result[1:], "\n"))
 }

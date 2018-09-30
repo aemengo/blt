@@ -76,6 +76,11 @@ func Forward(addresses []string) error {
 	return c2.Forward(ctx, "127.0.0.1:9998", addresses)
 }
 
+func ListForwarded() ([]string, error) {
+	ctx := context.Background()
+	return c2.ListForwarded(ctx, "127.0.0.1:9998")
+}
+
 func Stop(homedir string) {
 	process, ok := fetchVMProcess(homedir)
 	if !ok {
