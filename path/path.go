@@ -6,6 +6,10 @@ func StateDir(homedir string) string {
 	return filepath.Join(homedir, "state")
 }
 
+func FirstBootMarker(homedir string) string {
+	return filepath.Join(StateDir(homedir), "blt")
+}
+
 func LinuxkitStatePath(homedir string) string {
 	return filepath.Join(StateDir(homedir), "linuxkit")
 }

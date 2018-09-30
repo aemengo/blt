@@ -169,7 +169,8 @@ func performUp() error {
 
 	endTime := time.Now()
 	boldGreen.Printf("\nCompleted in %v\n\n", endTime.Sub(startTime))
-	fmt.Println(gettingStartedInstructions(), "\n")
+
+	handleUsageMessage()
 	return nil
 }
 
@@ -219,6 +220,18 @@ func showIndeterminateProgressAnimation() {
 
 func stopIndeterminateProgressAnimation() {
 	doneChan <- true
+}
+
+func handleUsageMessage() {
+	if exists(path.FirstBootMarker(bltHomeDir)) {
+		return
+	}
+
+	fmt.Println(gettingStartedInstructions(), "\n")
+	f, _ := os.Create(path.FirstBootMarker(bltHomeDir))
+	if f != nil {
+		f.Close()
+	}
 }
 
 type Dependency struct {

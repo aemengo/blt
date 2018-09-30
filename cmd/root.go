@@ -112,6 +112,11 @@ func askForConfirmation(s string, attempts int) bool {
 	return false
 }
 
+func exists(path string) bool {
+	_, err := os.Stat(path)
+	return err == nil
+}
+
 func gettingStartedInstructions() string {
 	return fmt.Sprintf(`Getting Started
 ===============
@@ -147,10 +152,15 @@ For adequate state preservation between VM "ups" and "downs", direct access is N
 
 To override where state files are kept, you may use the following environment variable:
 
+$ %s
+
+To see the message again, you can always run the blt CLI tool with no arguments:
+
 $ %s`,
 		boldWhite.Sprint("sudo ifconfig lo0 alias 10.0.0.4"),
 		boldWhite.Sprintf(`eval "$(blt env)"`),
 		boldWhite.Sprintf("blt expose -h"),
 		boldWhite.Sprintf("export BLT_HOME=/path/to/dir"),
+		boldWhite.Sprintf("blt"),
 	)
 }
