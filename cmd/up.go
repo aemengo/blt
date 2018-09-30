@@ -37,14 +37,16 @@ var upCmd = &cobra.Command{
 Note: copy-on-write is not yet implemented, so the value specified for disk size will immediately be allocated on your filesystem`,
 	Run: func(cmd *cobra.Command, args []string) {
 		err := performUp()
+		stopIndeterminateProgressAnimation()
 		expectNoError(err)
 	},
 }
 
 var (
-	cpu    string
-	memory string
-	disk   string
+	cpu      string
+	memory   string
+	disk     string
+	doneChan = make(chan bool, 1)
 )
 
 func init() {
@@ -79,7 +81,8 @@ func performUp() error {
 	startTime := time.Now()
 
 	// fetch assets
-	boldWhite.Print("Starting VM...  ")
+	boldWhite.Print("Starting VM")
+	go showIndeterminateProgressAnimation()
 	command := exec.Command(
 		"linuxkit", "run", "hyperkit",
 		"-console-file",
@@ -101,6 +104,8 @@ func performUp() error {
 	if err != nil {
 		return err
 	}
+
+	stopIndeterminateProgressAnimation()
 	boldGreen.Println("Success")
 
 	err = resetBOSHStateJSON()
@@ -154,7 +159,7 @@ func performUp() error {
 	boldGreen.Println("Success")
 
 	endTime := time.Now()
-	boldGreen.Printf("\nCompleted in $s\n\n", endTime.Sub(startTime))
+	boldGreen.Printf("\nCompleted in %v\n\n", endTime.Sub(startTime))
 	fmt.Println(gettingStartedInstructions(), "\n")
 	return nil
 }
@@ -177,4 +182,32 @@ func resetBOSHStateJSON() error {
 	newContents, _ := json.Marshal(mapping)
 
 	return ioutil.WriteFile(path.BoshStateJSONPath(bltHomeDir), newContents, 0600)
+}
+
+func showIndeterminateProgressAnimation() {
+	var (
+		toggle bool
+		clearChars = "\b\b\b\b\b\b"
+	)
+
+	boldWhite.Print("...   ")
+
+	for {
+		select {
+		case <-doneChan:
+			return
+		case <-time.NewTicker(500*time.Millisecond).C:
+			if toggle {
+				boldWhite.Print(clearChars, "...   ")
+			} else {
+				boldWhite.Print(clearChars, "..    ")
+			}
+
+			toggle = !toggle
+		}
+	}
+}
+
+func stopIndeterminateProgressAnimation()  {
+	doneChan <- true
 }
