@@ -24,7 +24,7 @@ import (
 var exposeCmd = &cobra.Command{
 	Use:   "expose",
 	Short: "Forward a port from the VM to the host",
-	Long: `In order to access container ports from the host, they
+	Long: fmt.Sprintf(`In order to access container ports from the host, they
 must be explicitly forwarded. Declaring ports is done in
 a similar fashion to the ssh command.
 
@@ -33,9 +33,9 @@ a similar fashion to the ssh command.
 For example:
 $ blt expose -L 10.0.0.5:80:10.0.0.5:80 -L 10.0.0.5:443:10.0.0.5:443
 
-Note: It is still up to you to configure how your machine routes itself to the
+%s It is still up to you to configure how your machine routes itself to the
 exposed port.
-`,
+`, boldWhite.Sprintf("Note:")),
 	Run: func(cmd *cobra.Command, args []string) {
 		err := performExpose()
 		expectNoError(err)

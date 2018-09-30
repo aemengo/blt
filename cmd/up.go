@@ -35,9 +35,10 @@ import (
 var upCmd = &cobra.Command{
 	Use:   "up",
 	Short: "Spin up a local BOSH Lit VM with accessible BOSH director",
-	Long: `Spin up a local BOSH Lit VM with accessible BOSH director
+	Long: fmt.Sprintf(`Spin up a local BOSH Lit VM with accessible BOSH director
 
-Note: copy-on-write is not yet implemented, so the value specified for disk size will immediately be allocated on your filesystem`,
+%s copy-on-write is not yet implemented, so the value specified
+for disk size will immediately be allocated on your filesystem`, boldWhite.Sprintf("Note:")),
 	Run: func(cmd *cobra.Command, args []string) {
 		err := performUp()
 		stopIndeterminateProgressAnimation()
@@ -76,9 +77,8 @@ func performUp() error {
 		fmt.Println("BOSH Lit is already running...")
 		return nil
 	}
-	// fetch assets
 
-	boldWhite.Print("Validating Prerequisties...   ")
+	boldWhite.Print("Validating Prerequisites...   ")
 	err := checkForDependencies()
 	if err != nil {
 		return err
@@ -91,6 +91,9 @@ func performUp() error {
 	boldGreen.Println("Success")
 
 	startTime := time.Now()
+
+	// TODO: fetch assets
+
 	err = os.RemoveAll(path.Pidpath(bltHomeDir))
 	if err != nil {
 		return err
@@ -149,28 +152,8 @@ func performUp() error {
 		return err
 	}
 
-	commands := []string{
-		fmt.Sprintf("bosh int %s --path /director_ssl/ca > %s", path.BoshCredsPath(bltHomeDir), path.BoshCACertPath(bltHomeDir)),
-		fmt.Sprintf("bosh int %s --path /jumpbox_ssh/private_key > %s", path.BoshCredsPath(bltHomeDir), path.BoshGWPrivateKeyPath(bltHomeDir)),
-		fmt.Sprintf("chmod 0600 %s", path.BoshGWPrivateKeyPath(bltHomeDir)),
-	}
-
 	boldWhite.Printf("Configuring Director...  ")
-	for _, command := range commands {
-		output, err := exec.Command("bash", "-c", command).CombinedOutput()
-		if err != nil {
-			return fmt.Errorf("failed to execute '%s': %s: %s", command, err, output)
-		}
-	}
-
-	err = exec.Command("bash", "-c", `eval "%s"; bosh cloud-config`).Run()
-	if err != nil {
-		cmd := fmt.Sprintf(`eval "%s"; bosh -n update-cloud-config %s`, fetchEnvironmentVariables(), filepath.Join(path.BoshOperationsDir(bltHomeDir), "cloud-config.yml"))
-		output, err := exec.Command("bash", "-c", cmd).CombinedOutput()
-		if err != nil {
-			return fmt.Errorf("failed to execute '%s': %s: %s", cmd, err, output)
-		}
-	}
+	configureBoshDirector()
 	boldGreen.Println("Success")
 
 	endTime := time.Now()
@@ -240,6 +223,35 @@ func handleUsageMessage() {
 	}
 }
 
+func configureBoshDirector() error {
+	commands := []string{
+		fmt.Sprintf("bosh int %s --path /director_ssl/ca > %s", path.BoshCredsPath(bltHomeDir), path.BoshCACertPath(bltHomeDir)),
+		fmt.Sprintf("bosh int %s --path /jumpbox_ssh/private_key > %s", path.BoshCredsPath(bltHomeDir), path.BoshGWPrivateKeyPath(bltHomeDir)),
+		fmt.Sprintf("chmod 0600 %s", path.BoshGWPrivateKeyPath(bltHomeDir)),
+	}
+
+	for _, command := range commands {
+		output, err := exec.Command("bash", "-c", command).CombinedOutput()
+		if err != nil {
+			return fmt.Errorf("failed to execute '%s': %s: %s", command, err, output)
+		}
+	}
+
+	cmd := fmt.Sprintf(`eval "%s"; bosh cloud-config`, fetchEnvironmentVariables())
+	err := exec.Command("bash", "-c", cmd).Run()
+	if err == nil {
+		return nil
+	}
+
+	cmd = fmt.Sprintf(`eval "%s"; bosh -n update-cloud-config %s`, fetchEnvironmentVariables(), filepath.Join(path.BoshOperationsDir(bltHomeDir), "cloud-config.yml"))
+	output, err := exec.Command("bash", "-c", cmd).CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("failed to execute '%s': %s: %s", cmd, err, output)
+	}
+
+	return nil
+}
+
 func checkNetworkAddrs() error {
 	addrs, err := net.InterfaceAddrs()
 	if err != nil {
@@ -260,9 +272,9 @@ $ %s `, boldWhite.Sprint("sudo ifconfig lo0 alias 10.0.0.4"))
 }
 
 type Dependency struct {
-	Name           string
-	CheckCommand   string
-	Site           string
+	Name         string
+	CheckCommand string
+	Site         string
 }
 
 func (d *Dependency) Usage() string {
@@ -289,7 +301,7 @@ func checkForDependencies() error {
 		{
 			Name:         "linuxkit",
 			CheckCommand: "linuxkit version",
-			Site: "https://github.com/linuxkit/linuxkit",
+			Site:         "https://github.com/linuxkit/linuxkit",
 		},
 		{
 			Name:         "tar",

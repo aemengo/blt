@@ -56,10 +56,12 @@ func GetStatus(homedir string) Status {
 }
 
 func WaitForStatus(desiredStatus Status, homedir string, timeout time.Duration) error {
+	timeoutChan := time.After(timeout)
+
 	for {
 		select {
-		case <-time.After(timeout):
-			return fmt.Errorf("vm failed to reach a status of %s after %v", desiredStatus, timeout)
+		case <-timeoutChan:
+			return fmt.Errorf("VM failed to reach a status of %s after %v", desiredStatus, timeout)
 		case <-time.NewTicker(time.Second).C:
 			status := GetStatus(homedir)
 			if status == desiredStatus {

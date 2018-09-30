@@ -32,7 +32,7 @@ var destroyCmd = &cobra.Command{
 	},
 }
 
-var force bool
+var ignoreConfirmation bool = false
 
 func init() {
 	rootCmd.AddCommand(destroyCmd)
@@ -47,7 +47,7 @@ func init() {
 	// is called directly, e.g.:
 	// destroyCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 
-	destroyCmd.Flags().BoolVarP(&force, "force", "f", false, "Force deletion without confirmation")
+	destroyCmd.Flags().BoolVarP(&ignoreConfirmation, "force", "f", false, "Force deletion without confirmation")
 }
 
 func performDestroy() error {
@@ -56,7 +56,7 @@ func performDestroy() error {
 		return fmt.Errorf("your VM must be stopped before you can perform this action, it is currently: %s", boldWhite.Sprint(status))
 	}
 
-	if force || !askForConfirmation("Do you really want to wipe all the data off of your BOSH Lit VM?", 3) {
+	if !ignoreConfirmation && !askForConfirmation("Do you really want to wipe all the data off of your BOSH Lit VM?", 3) {
 		fmt.Println("Aborting...")
 		return nil
 	}
