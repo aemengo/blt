@@ -32,6 +32,12 @@
   version = "v1.0.0"
 
 [[projects]]
+  name = "github.com/ryanuber/columnize"
+  packages = ["."]
+  revision = "983d3a5fab1bf04d1b412465d2d9f8430e2e917e"
+  version = "v2.1.0"
+
+[[projects]]
   name = "github.com/spf13/cobra"
   packages = ["."]
   revision = "ef82de70bb3f60c65fb8eebacbb2d122ef517385"
@@ -52,6 +58,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "95ce916381bcad54765fd0102f154495cb63a925fe8a52804f6a03c5c2c25ba4"
+  inputs-digest = "57ea486fa2be357650854759b2bd0ea04bda70579e185da1b11da0b652a065f7"
   solver-name = "gps-cdcl"
   solver-version = 1
