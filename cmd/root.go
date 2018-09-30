@@ -36,7 +36,8 @@ var (
 var rootCmd = &cobra.Command{
 	Use:   "blt",
 	Short: "CLI for managing BOSH Lit VMs",
-	Long: fmt.Sprintf(`blt (short for BOSH Lit) is a CLI for managing a BOSH Lit VM.
+	Long: fmt.Sprintf(`
+blt (short for BOSH Lit) is a CLI for managing a BOSH Lit VM.
 This tool provides an easy way to get up and running with a local, low-footprint
 BOSH environment that supports deployments.
 
@@ -140,8 +141,8 @@ $ %s
 State
 =====
 
-The "state.json" and "creds.yml" of your BOSH director is by default held at: "$HOME/.blt/state/bosh". For adequate state
-preservation between VM "ups" and "downs", direct access is NOT recommended.
+The "state.json" and "creds.yml" of your BOSH director is by default held at: "$HOME/.blt/state/bosh".
+For adequate state preservation between VM "ups" and "downs", direct access is NOT recommended.
 
 To override where state files are kept, you may use the following environment variable:
 

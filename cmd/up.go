@@ -32,6 +32,9 @@ import (
 var upCmd = &cobra.Command{
 	Use:   "up",
 	Short: "Spin up a local BOSH Lit VM with accessible BOSH director",
+	Long: `Spin up a local BOSH Lit VM with accessible BOSH director
+
+Note: copy-on-write is not yet implemented, so the value specified for disk size will immediately be allocated on your filesystem`,
 	Run: func(cmd *cobra.Command, args []string) {
 		err := performUp()
 		expectNoError(err)
@@ -72,9 +75,11 @@ func performUp() error {
 	os.RemoveAll(path.Pidpath(bltHomeDir))
 
 	// validate dependencies
-	// fetch assets
 
-	// declare launching vm
+	startTime := time.Now()
+
+	// fetch assets
+	boldWhite.Print("Starting VM...  ")
 	command := exec.Command(
 		"linuxkit", "run", "hyperkit",
 		"-console-file",
@@ -85,8 +90,7 @@ func performUp() error {
 		"-publish", "9999:9999/tcp",
 		"-publish", "9998:9998/tcp",
 		"-state", path.LinuxkitStatePath(bltHomeDir),
-		path.EFIisoPath(bltHomeDir),
-	)
+		path.EFIisoPath(bltHomeDir))
 
 	err := command.Start()
 	if err != nil {
@@ -97,13 +101,14 @@ func performUp() error {
 	if err != nil {
 		return err
 	}
+	boldGreen.Println("Success")
 
 	err = resetBOSHStateJSON()
 	if err != nil {
 		return err
 	}
 
-	// declare deploying director
+	boldWhite.Println("Deploying Director...  ")
 	command = exec.Command(
 		"bosh", "create-env", filepath.Join(path.BoshDeploymentDir(bltHomeDir), "bosh.yml"),
 		"-o", filepath.Join(path.BoshDeploymentDir(bltHomeDir), "jumpbox-user.yml"),
@@ -130,6 +135,7 @@ func performUp() error {
 		fmt.Sprintf("chmod 0600 %s", path.BoshGWPrivateKeyPath(bltHomeDir)),
 	}
 
+	boldWhite.Printf("Configuring Director...  ")
 	for _, command := range commands {
 		output, err := exec.Command("bash", "-c", command).CombinedOutput()
 		if err != nil {
@@ -145,8 +151,11 @@ func performUp() error {
 			return fmt.Errorf("failed to execute '%s': %s: %s", cmd, err, output)
 		}
 	}
+	boldGreen.Println("Success")
 
-	fmt.Println("\n", gettingStartedInstructions(), "\n")
+	endTime := time.Now()
+	boldGreen.Printf("\nCompleted in $s\n\n", endTime.Sub(startTime))
+	fmt.Println(gettingStartedInstructions(), "\n")
 	return nil
 }
 
