@@ -95,7 +95,9 @@ func performUp() error {
 	boldWhite.Print("Checking Assets...   ")
 
 	ok := checkNeedsUpdates()
-	if ok {
+	if !ok {
+		boldGreen.Println("Success")
+	} else {
 		boldYellow.Println("Needs Updates")
 		boldWhite.Printf("Fetching %s", path.AssetURL(version))
 		go showIndeterminateProgressAnimation()
@@ -104,10 +106,10 @@ func performUp() error {
 		if err != nil {
 			return err
 		}
-	}
 
-	stopIndeterminateProgressAnimation()
-	boldGreen.Println("Success")
+		stopIndeterminateProgressAnimation()
+		boldGreen.Println("Success")
+	}
 
 	err = os.RemoveAll(path.Pidpath(bltHomeDir))
 	if err != nil {

@@ -24,7 +24,7 @@ func DownloadAssets(version string, homedir string) error {
 	if err != nil {
 		return err
 	}
-u
+
 	assetPath, err := fetch(path.AssetURL(version), string(data))
 	if err != nil {
 		return err
