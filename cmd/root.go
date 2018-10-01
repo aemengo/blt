@@ -79,7 +79,8 @@ func initConfig() {
 	}
 
 	bltHomeDir = filepath.Join(home, ".blt")
-	os.MkdirAll(bltHomeDir, os.ModePerm)
+	err = os.MkdirAll(bltHomeDir, os.ModePerm)
+	expectNoError(err)
 }
 
 func expectNoError(err error) {
