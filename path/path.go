@@ -1,9 +1,16 @@
 package path
 
-import "path/filepath"
+import (
+	"fmt"
+	"path/filepath"
+)
 
 func StateDir(homedir string) string {
 	return filepath.Join(homedir, "state")
+}
+
+func AssetDir(homedir string) string {
+	return filepath.Join(homedir, "assets")
 }
 
 func FirstBootMarker(homedir string) string {
@@ -39,13 +46,25 @@ func Pidpath(homedir string) string {
 }
 
 func EFIisoPath(homedir string) string {
-	return filepath.Join(homedir, "assets", "bosh-lit-efi.iso")
+	return filepath.Join(AssetDir(homedir), "bosh-lit-efi.iso")
 }
 
 func BoshDeploymentDir(homedir string) string {
-	return filepath.Join(homedir, "assets", "bosh-deployment")
+	return filepath.Join(AssetDir(homedir), "bosh-deployment")
 }
 
 func BoshOperationsDir(homedir string) string {
-	return filepath.Join(homedir, "assets", "operations")
+	return filepath.Join(AssetDir(homedir), "operations")
+}
+
+func AssetVersionPath(homedir string) string {
+	return filepath.Join(AssetDir(homedir),  "version")
+}
+
+func AssetURL(version string) string {
+	return fmt.Sprintf("https://github.com/aemengo/blt/releases/download/%s/bosh-lit-assets.tgz", version)
+}
+
+func AssetSHAurl(version string) string {
+	return fmt.Sprintf("https://github.com/aemengo/blt/releases/download/%s/bosh-lit-assets.tgz.sha1", version)
 }

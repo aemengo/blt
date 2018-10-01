@@ -29,6 +29,7 @@ var (
 	bltHomeDir string
 	boldWhite  = color.New(color.FgWhite, color.Bold)
 	boldGreen  = color.New(color.FgGreen, color.Bold)
+	boldYellow = color.New(color.FgYellow, color.Bold)
 	boldRed    = color.New(color.FgRed, color.Bold)
 )
 

@@ -20,6 +20,7 @@ import (
 	"fmt"
 	"github.com/aemengo/blt/path"
 	"github.com/aemengo/blt/vm"
+	"github.com/aemengo/blt/web"
 	"io/ioutil"
 	"net"
 	"os"
@@ -91,8 +92,22 @@ func performUp() error {
 	boldGreen.Println("Success")
 
 	startTime := time.Now()
+	boldWhite.Print("Checking Assets...   ")
 
-	// TODO: fetch assets
+	ok := checkNeedsUpdates()
+	if ok {
+		boldYellow.Println("Needs Updates")
+		boldWhite.Printf("Fetching %s", path.AssetURL(version))
+		go showIndeterminateProgressAnimation()
+
+		err = web.DownloadAssets(version, bltHomeDir)
+		if err != nil {
+			return err
+		}
+	}
+
+	stopIndeterminateProgressAnimation()
+	boldGreen.Println("Success")
 
 	err = os.RemoveAll(path.Pidpath(bltHomeDir))
 	if err != nil {
@@ -250,6 +265,15 @@ func configureBoshDirector() error {
 	}
 
 	return nil
+}
+
+func checkNeedsUpdates() bool {
+	contents, err := ioutil.ReadFile(path.AssetVersionPath(bltHomeDir))
+	if err != nil {
+		return true
+	}
+
+	return strings.TrimSpace(string(contents)) != version
 }
 
 func checkNetworkAddrs() error {
