@@ -204,6 +204,7 @@ func showIndeterminateProgressAnimation() {
 	var (
 		toggle     bool
 		clearChars = "\b\b\b\b\b\b"
+		ticker     = time.NewTicker(500*time.Millisecond)
 	)
 
 	boldWhite.Print("...   ")
@@ -212,7 +213,7 @@ func showIndeterminateProgressAnimation() {
 		select {
 		case <-doneChan:
 			return
-		case <-time.NewTicker(500 * time.Millisecond).C:
+		case <-ticker.C:
 			if toggle {
 				boldWhite.Print(clearChars, "...   ")
 			} else {
