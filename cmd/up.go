@@ -271,6 +271,10 @@ func configureBoshDirector() error {
 }
 
 func checkNeedsUpdates() bool {
+	if version == "DEV" {
+		return false
+	}
+
 	contents, err := ioutil.ReadFile(path.AssetVersionPath(bltHomeDir))
 	if err != nil {
 		return true
