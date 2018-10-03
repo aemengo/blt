@@ -173,8 +173,7 @@ func performUp() error {
 	configureBoshDirector()
 	boldGreen.Println("Success")
 
-	endTime := time.Now()
-	boldGreen.Printf("\nCompleted in %v\n\n", endTime.Sub(startTime))
+	boldGreen.Printf("\nCompleted in %v\n\n", time.Since(startTime))
 
 	handleUsageMessage()
 	return nil

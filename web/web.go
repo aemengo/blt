@@ -103,7 +103,12 @@ func shaMatches(sha string, path string) error {
 	return nil
 }
 
-func do(attempts int, delay time.Duration, task func() error) (err error) {
+func do(retries int, delay time.Duration, task func() error) (err error) {
+	err = task()
+	if err == nil {
+		return
+	}
+
 	ticker := time.NewTicker(delay)
 
 	for {
@@ -114,8 +119,8 @@ func do(attempts int, delay time.Duration, task func() error) (err error) {
 				return
 			}
 
-			attempts--
-			if attempts == 0 {
+			retries--
+			if retries == 0 {
 				return
 			}
 		}
