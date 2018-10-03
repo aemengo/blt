@@ -136,10 +136,11 @@ $ %s
 Networking
 ==========
 
-BOSH Lit is provisioned with the subnet of "10.0.0.1/16". It also has a minimal cloud-config
+BOSH Lit is provisioned with the network of "10.0.0.0/16". It also has a minimal cloud-config
 pre-configured with the appropriate attributes. Should you wish to deploy Cloud Foundry
 on your local instance, you can use this cloud-config here:
-https://github.com/aemengo/bosh-runc-cpi-release/blob/develop/operations/cf/cloud-config.yml
+
+https://github.com/aemengo/bosh-runc-cpi-release/blob/master/operations/cf/cloud-config.yml
 
 In order to access ports for new deployments from the host, you must use the "blt expose" command.
 Port forwarding is done à la ssh. For more information, you can invoke the following:

@@ -99,16 +99,15 @@ func performUp() error {
 		boldGreen.Println("Success")
 	} else {
 		boldYellow.Println("Needs Updates")
-		boldWhite.Printf("Fetching %s", path.AssetURL(version))
-		go showIndeterminateProgressAnimation()
 
-		err = web.DownloadAssets(version, bltHomeDir)
+		messageChan := make(chan string, 1)
+		go printMessages(messageChan)
+		err = web.DownloadAssets(version, bltHomeDir, messageChan)
 		if err != nil {
 			return err
 		}
 
 		stopIndeterminateProgressAnimation()
-		boldGreen.Println("Success")
 	}
 
 	err = os.RemoveAll(path.Pidpath(bltHomeDir))
@@ -199,6 +198,16 @@ func resetBOSHStateJSON() error {
 	return ioutil.WriteFile(path.BoshStateJSONPath(bltHomeDir), newContents, 0600)
 }
 
+func printMessages(messageChan chan string) {
+	for {
+		select {
+		case <-doneChan:
+			return
+		case m := <-messageChan:
+			fmt.Println(m)
+		}
+	}
+}
 func showIndeterminateProgressAnimation() {
 	var (
 		toggle     bool
