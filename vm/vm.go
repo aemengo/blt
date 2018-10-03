@@ -95,6 +95,11 @@ func Stop(homedir string) {
 		return
 	}
 
+	process, ok = fetchVMProcess(homedir)
+	if !ok {
+		return
+	}
+
 	fmt.Println("VM did not terminate gracefully after 20 seconds. Force quitting...")
 	process.Signal(os.Kill)
 }
