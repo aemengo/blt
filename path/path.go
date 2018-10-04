@@ -68,11 +68,3 @@ func AssetURL(version string) string {
 func AssetSHAurl(version string) string {
 	return fmt.Sprintf("https://github.com/aemengo/blt/releases/download/%s/bosh-lit-assets.tgz.sha1", version)
 }
-
-func AssetSHAApproximateSize() string {
-	return "41B"
-}
-
-func AssetsApproximateSize() string {
-	return "825MB"
-}

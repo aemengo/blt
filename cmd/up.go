@@ -100,7 +100,7 @@ func performUp() error {
 	} else {
 		boldYellow.Println("Needs Updates")
 
-		messageChan := make(chan string, 1)
+		messageChan := make(chan string, 10)
 		go printMessages(messageChan)
 		err = web.DownloadAssets(version, bltHomeDir, messageChan)
 		if err != nil {
@@ -204,7 +204,7 @@ func printMessages(messageChan chan string) {
 		case <-doneChan:
 			return
 		case m := <-messageChan:
-			fmt.Println(m)
+			fmt.Printf(m)
 		}
 	}
 }
