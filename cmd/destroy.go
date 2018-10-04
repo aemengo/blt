@@ -61,10 +61,5 @@ func performDestroy() error {
 		return nil
 	}
 
-	err := os.RemoveAll(path.StateDir(bltHomeDir))
-	if err != nil {
-		return err
-	}
-
-	return os.MkdirAll(path.StateDir(bltHomeDir), os.ModePerm)
+	return os.RemoveAll(path.StateDir(bltHomeDir))
 }

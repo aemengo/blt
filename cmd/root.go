@@ -123,7 +123,7 @@ func gettingStartedInstructions() string {
 	return fmt.Sprintf(`Getting Started
 ===============
 
-Your BOSH director will be accessible at "10.0.0.4". To make sure your requests
+Your BOSH director will be accessible at %s. To make sure your requests
 target appropriately you may need to add the IP to your network interface, like so:
 
 $ %s
@@ -136,7 +136,7 @@ $ %s
 Networking
 ==========
 
-BOSH Lit is provisioned with the network of "10.0.0.0/16". It also has a minimal cloud-config
+BOSH Lit is provisioned with the network of %s. It also has a minimal cloud-config
 pre-configured with the appropriate attributes. Should you wish to deploy Cloud Foundry
 on your local instance, you can use this cloud-config here:
 
@@ -150,18 +150,20 @@ $ %s
 State
 =====
 
-The "state.json" and "creds.yml" of your BOSH director is by default held at: "$HOME/.blt/state/bosh".
+The "state.json" and "creds.yml" of your BOSH director is held at "$HOME/.blt/state/bosh" by default.
 For adequate state preservation between VM "ups" and "downs", direct access is NOT recommended.
 
-To override where state files are kept, you may use the following environment variable:
+To override where files are kept, you may use the following environment variable:
 
 $ %s
 
 To see the message again, you can always run the blt CLI tool with no arguments:
 
 $ %s`,
+		boldWhite.Sprint("10.0.0.4"),
 		boldWhite.Sprint("sudo ifconfig lo0 alias 10.0.0.4"),
 		boldWhite.Sprintf(`eval "$(blt env)"`),
+		boldWhite.Sprintf("10.0.0.0/16"),
 		boldWhite.Sprintf("blt expose -h"),
 		boldWhite.Sprintf("export BLT_HOME=/path/to/dir"),
 		boldWhite.Sprintf("blt"),

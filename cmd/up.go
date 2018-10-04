@@ -304,10 +304,10 @@ func checkNetworkAddrs() error {
 		}
 	}
 
-	return fmt.Errorf(`Your BOSH director will be accessible at "10.0.0.4". To make sure your requests
+	return fmt.Errorf(`Your BOSH director will be accessible at %s. To make sure your requests
 target appropriately you must add the IP to your network interfaces, like so:
 
-$ %s `, boldWhite.Sprint("sudo ifconfig lo0 alias 10.0.0.4"))
+$ %s `, boldWhite.Sprint("10.0.0.4"), boldWhite.Sprint("sudo ifconfig lo0 alias 10.0.0.4"))
 }
 
 type Dependency struct {

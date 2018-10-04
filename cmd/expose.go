@@ -33,6 +33,7 @@ a similar fashion to the ssh command.
     -L host_address:port:container_address:container_port
 
 For example:
+
 $ blt expose -L 10.0.0.5:80:10.0.0.5:80 -L 10.0.0.5:443:10.0.0.5:443
 
 To list ports that are already exposed, simply invoke the command without
