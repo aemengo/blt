@@ -72,6 +72,11 @@ func WaitForStatus(desiredStatus Status, homedir string, timeout time.Duration) 
 	}
 }
 
+func Prune() error {
+	ctx := context.Background()
+	return c1.Prune(ctx, "127.0.0.1:9999")
+}
+
 func Forward(addresses []string) error {
 	ctx := context.Background()
 	return c2.Forward(ctx, "127.0.0.1:9998", addresses)
