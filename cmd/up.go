@@ -36,10 +36,6 @@ import (
 var upCmd = &cobra.Command{
 	Use:   "up",
 	Short: "Spin up a local BOSH Lit VM with accessible BOSH director",
-	Long: fmt.Sprintf(`Spin up a local BOSH Lit VM with accessible BOSH director
-
-%s copy-on-write is not yet implemented, so the value specified
-for disk size will immediately be allocated on your filesystem`, boldWhite.Sprintf("Note:")),
 	Run: func(cmd *cobra.Command, args []string) {
 		err := performUp()
 		stopIndeterminateProgressAnimation()
@@ -69,7 +65,7 @@ func init() {
 
 	upCmd.Flags().StringVarP(&cpu, "cpu", "c", "4", "Number of cores to allocate to VM")
 	upCmd.Flags().StringVarP(&memory, "memory", "m", "4096", "Amount of memory to allocate to VM in megabytes")
-	upCmd.Flags().StringVarP(&disk, "disk", "d", "40", "Amount of disk space to allocate to VM in gigabytes (copy-on-write)")
+	upCmd.Flags().StringVarP(&disk, "disk", "d", "40", "Amount of disk space to allocate to VM in gigabytes")
 }
 
 func performUp() error {
@@ -157,6 +153,7 @@ func performUp() error {
 		"-v", "director_name=director",
 		"-v", "external_cpid_ip=127.0.0.1",
 		"-v", "internal_cpid_ip=192.168.65.3",
+		"-v", "internal_cpid_gw=192.168.65.1",
 		"-v", "internal_ip=10.0.0.4",
 		"-v", "internal_gw=10.0.0.1",
 		"-v", "internal_cidr=10.0.0.0/16")
@@ -307,7 +304,9 @@ func checkNetworkAddrs() error {
 	return fmt.Errorf(`Your BOSH director will be accessible at %s. To make sure your requests
 target appropriately you must add the IP to your network interfaces, like so:
 
-$ %s `, boldWhite.Sprint("10.0.0.4"), boldWhite.Sprint("sudo ifconfig lo0 alias 10.0.0.4"))
+$ %s
+
+`, boldWhite.Sprint("10.0.0.4"), boldWhite.Sprint("sudo ifconfig lo0 alias 10.0.0.4"))
 }
 
 type Dependency struct {
