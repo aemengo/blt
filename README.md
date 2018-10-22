@@ -70,9 +70,9 @@ To spin down your environment:
 $ blt down
 ```
 
-Spinning your environment back up again with `blt up`, will keep your previous working state preserved.
+Your previous working state will be preserved when spinning your environment back up with `blt up`.
 
-To see the state of your BOSH Lit environment, you can `blt status` at any time:
+To see the status of your BOSH Lit environment, you can `blt status` at any time:
 
 ![blt-status](images/blt-status.png)
 
