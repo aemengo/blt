@@ -120,10 +120,20 @@ func performUp() error {
 		"-cpus="+cpu, "-mem="+memory,
 		"-disk", "size="+disk+"G",
 		"-networking", "vpnkit",
+		"-vpnkit", filepath.Join(path.AssetDir(bltHomeDir), "vpnkit"),
 		"-publish", "9999:9999/tcp",
 		"-publish", "9998:9998/tcp",
 		"-state", path.LinuxkitStatePath(bltHomeDir),
 		path.EFIisoPath(bltHomeDir))
+
+	logFile, err := os.Create(filepath.Join(bltHomeDir, "linuxkit.log"))
+	if err != nil {
+		return err
+	}
+	defer logFile.Close()
+
+	command.Stdout = logFile
+	command.Stderr = logFile
 
 	err = command.Start()
 	if err != nil {
