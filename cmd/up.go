@@ -163,7 +163,7 @@ func performUp() error {
 		"-v", "director_name=director",
 		"-v", "external_cpid_ip=127.0.0.1",
 		"-v", "internal_cpid_ip=192.168.65.3",
-		"-v", "internal_cpid_gw=192.168.65.1",
+		"-v", "internal_nameserver=192.168.65.1",
 		"-v", "internal_ip=10.0.0.4",
 		"-v", "internal_gw=10.0.0.1",
 		"-v", "internal_cidr=10.0.0.0/16")
@@ -180,8 +180,6 @@ func performUp() error {
 	boldGreen.Println("Success")
 
 	boldGreen.Printf("\nCompleted in %v\n\n", time.Since(startTime))
-
-	handleUsageMessage()
 	return nil
 }
 
@@ -242,18 +240,6 @@ func showIndeterminateProgressAnimation() {
 
 func stopIndeterminateProgressAnimation() {
 	doneChan <- true
-}
-
-func handleUsageMessage() {
-	if exists(path.FirstBootMarker(bltHomeDir)) {
-		return
-	}
-
-	fmt.Println(gettingStartedInstructions(), "\n")
-	f, _ := os.Create(path.FirstBootMarker(bltHomeDir))
-	if f != nil {
-		f.Close()
-	}
 }
 
 func configureBoshDirector() error {
